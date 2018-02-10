@@ -4,69 +4,54 @@ using System.Collections;
 
 public class CarrocaScript : MonoBehaviour {
 
-	public GameObject controlMenu;
+	private Animator anim;
 
+    //Movimentação
+        /*/Aceleração
+            private float aceleracao = 1;
+            private float desaceleracao = 1;
+            private float desaceleracaoRotate = 5;
+            public float velocidadeSpeed = 0;
+            public float FinalSpeed = 4;
+            private bool C = true;
+            private bool B = true;
+            private bool E = true;
+            private bool D = true;
+        */
 
-	//tutorial
-	public bool EstaNoTutorial = true;
-	public int tutorialmove = 0;
-	public bool tutorialLixeira = false;
-	//Movimentação
-		//Aceleração
-	    private float aceleracao = 1;
-	    private float desaceleracao = 1;
-		private float desaceleracaoRotate = 5;
-	    private float velocidadeSpeed = 0;
-	    public float FinalSpeed = 4;
-
-	    private float velocidadeRotate = 0;
-	    private float FinalRotate = 72;
-		public string speed = "Parado";
-		public string rotate = "Parado";
-
-		public int rodaquebrada = 0;
-		public bool pegandolixo = false;
-
-	    private bool C = true;
-	    private bool B = true;
-	    private bool E = true;
-	    private bool D = true;
-
-	//Lixo
-	public GameObject slot1;
-	public GameObject slot2;
-	public GameObject slot3;
-
-    public float pesoLixo = 0;
-	public float carteira = 0;
+    [HideInInspector]public float pesoLixo = 0;
+    [HideInInspector]public float carteira = 0;
 
 	//Estado
-	public int vida = 3;
+	public int vida = 100;
 
     //public GameObject lixoPrefab;
 
     void Start () {
+		anim = GetComponent<Animator> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (rodaquebrada >= 3) {
-			velocidadeRotate = 0;
-			velocidadeSpeed = 0;
-		}
-		//Não deixa passar
+		/*/Não deixa passar
 
-		if(FinalSpeed <= 4) FinalSpeed = 4;
-		if (FinalRotate <= 24) FinalRotate = 24;
+		if (FinalSpeed <= 4)
+			FinalSpeed = 4;
+		if (FinalRotate <= 24)
+			FinalRotate = 24;
 
 		FinalSpeed = FinalSpeed * ((100 - pesoLixo) / 100);
 		FinalRotate = FinalRotate * ((100 - pesoLixo) / 100);
 
-		if(!pegandolixo){transform.Translate(new Vector2(0, velocidadeSpeed) * Time.deltaTime);}
-		if(!pegandolixo){transform.Rotate(new Vector3(0, 0, velocidadeRotate) * Time.deltaTime);}
+		//chamaAnimaçao
+
+		if (speed == "Parado" || rotate == "Parado") {
+			anim.SetBool ("Walking", false);
+		}
 
 			if (speed == "PraFrente" && velocidadeSpeed <= FinalSpeed)
 	        {
+				anim.SetBool ("Walking", true);
 			    tutorialmove++;
 	            C = true;
 	            velocidadeSpeed += aceleracao;
@@ -75,6 +60,7 @@ public class CarrocaScript : MonoBehaviour {
 
 			if (speed == "PraTras" && velocidadeSpeed >= FinalSpeed * -1)
 	        {
+				anim.SetBool ("Walking", true);
 			    tutorialmove++;
 	            B = true;
 	            velocidadeSpeed -= aceleracao;
@@ -83,6 +69,7 @@ public class CarrocaScript : MonoBehaviour {
 
 			if (rotate == "PraEsquerda" && velocidadeRotate <= FinalRotate)
 	        {
+				anim.SetBool ("Walking", true);
 			    tutorialmove++;
 	            E = true;
 	           velocidadeRotate += aceleracao;
@@ -91,6 +78,7 @@ public class CarrocaScript : MonoBehaviour {
 
 			if (rotate == "PraDireita" && velocidadeRotate >= FinalRotate* -1)
 	        {
+				anim.SetBool ("Walking", true);
 			    tutorialmove++;
 	            D = true;
 	            velocidadeRotate -= aceleracao;
@@ -111,64 +99,13 @@ public class CarrocaScript : MonoBehaviour {
 			}
 
 		if (rodaquebrada > 0) Rodaquebrada ();
-			
+	 */		
     }
-	void OnTriggerEnter2D(Collider2D hit)
-	{
-		
-        if(hit.CompareTag("Lixo"))
-        {
-			if (EstaNoTutorial) {
-				tutorialLixeira = true;
-				pegandolixo = true;
-				slot1.GetComponent<IniLixos> ().SortearLixo (3);
-				slot2.GetComponent<IniLixos> ().SortearLixo (1);
-				slot3.GetComponent<IniLixos> ().SortearLixo (3);
-				controlMenu.SendMessage ("ChangeScreen", ControlMenu.Screens.LixoMenu);
-				EstaNoTutorial = false;
-				hit.transform.tag = "LixoUsado";
-			} else {
-				pegandolixo = true;
-				slot1.GetComponent<IniLixos> ().SortearLixo (Random.Range(0,4));
-				slot2.GetComponent<IniLixos> ().SortearLixo (Random.Range(0,4));
-				slot3.GetComponent<IniLixos> ().SortearLixo (Random.Range(0,4));
-				controlMenu.SendMessage("ChangeScreen", ControlMenu.Screens.LixoMenu);
-				hit.transform.tag = "LixoUsado";
-			}
-		
-           /*Destroy(hit);
-            hit.GetComponent<SpriteRenderer>().enabled = false;
-            Clixo();*/
-        }
-		else if(hit.CompareTag("LixoUsado"))
-		{
-			pegandolixo = true;
-			controlMenu.SendMessage("ChangeScreen", ControlMenu.Screens.LixoMenu);
+
+	void OnCollisionEnter2D(Collision2D hit){
+		if(hit.collider.CompareTag("virarDireita") || hit.collider.CompareTag ("virarEsquerda") || hit.collider.CompareTag ("virarReto")){
+			vida -= 25;
 		}
-	}
-
-  
-
-    void Rodaquebrada () {
-	
-		if (Input.GetKey(KeyCode.LeftArrow) && velocidadeRotate <= FinalRotate)
-		{
-			E = true;
-			velocidadeRotate += aceleracao;
-		}
-		else E = false;
-
-		if (Input.GetKey(KeyCode.RightArrow) && velocidadeRotate >= FinalRotate* -1)
-		{
-			D = true;
-			velocidadeRotate -= aceleracao;
-		}
-		else D = false;
-
-		if (!E && !D && velocidadeRotate > 0) velocidadeRotate -= desaceleracao*(1/rodaquebrada);
-		else if (!E && !D && velocidadeRotate < 0) velocidadeRotate += desaceleracao*(1/rodaquebrada);
-
-	
 	}
 
 }
